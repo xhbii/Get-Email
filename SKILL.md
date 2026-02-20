@@ -30,7 +30,9 @@ config = {
     'folder': 'INBOX',                # 邮箱文件夹，默认收件箱
     'searchCriteria': 'ALL',          # 搜索条件，默认获取所有邮件
     'savePath': './emails',           # 保存路径，默认当前目录下的emails文件夹
-    'maxEmails': 8                    # 最多处理邮件数量，默认8封
+    'maxEmails': 8,                  # 最多处理邮件数量，默认8封
+    'filterMode': 'none',            # 过滤模式: none/whitelist/blacklist
+    'filterList': []                 # 过滤关键词列表
 }
 ```
 
@@ -166,6 +168,21 @@ get_email/
 existing_files = set(f for f in os.listdir(config['savePath']) if f.endswith('.md'))
 ```
 
+## 过滤机制
+---
+支持白名单和黑名单过滤模式，基于发件人和主题匹配关键词。
+
+```python
+config = {
+    'filterMode': 'blacklist',  # none/whitelist/blacklist
+    'filterList': ['JPM', 'Jefferies']  # 关键词列表
+}
+```
+
+- **none**: 不过滤，处理所有邮件
+- **whitelist**: 只处理包含关键词的邮件
+- **blacklist**: 过滤掉包含关键词的邮件
+
 ## 附件处理
 ---
 - 支持多种附件类型
@@ -191,5 +208,5 @@ existing_files = set(f for f in os.listdir(config['savePath']) if f.endswith('.m
 - beautifulsoup4
 
 ---
-**版本**: 1.1
+**版本**: 1.2
 **最后更新**: 2026-02-20

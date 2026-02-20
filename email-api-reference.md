@@ -43,6 +43,8 @@ config = {
 | `searchCriteria` | str | `'ALL'` | 搜索条件 |
 | `savePath` | str | `'./emails'` | 保存路径 |
 | `maxEmails` | int | `8` | 最多处理邮件数量 |
+| `filterMode` | str | `'none'` | 过滤模式: none/whitelist/blacklist |
+| `filterList` | list | `[]` | 过滤关键词列表 |
 
 ## 函数参考
 ---
@@ -215,8 +217,27 @@ if __name__ == "__main__":
 existing_files = set(f for f in os.listdir(config['savePath']) if f.endswith('.md'))
 
 if filename in existing_files:
-    print(f"邮件已存在，跳过: {filename}")
+    print(f"Email already exists, skip: {filename}")
 ```
+
+## 过滤机制
+
+支持白名单和黑名单过滤模式，基于发件人和主题匹配关键词。
+
+```python
+config = {
+    'filterMode': 'blacklist',  # none/whitelist/blacklist
+    'filterList': ['JPM', 'Jefferies']  # keywords
+}
+```
+
+| Mode | Behavior |
+|------|----------|
+| `none` | Process all emails |
+| `whitelist` | Only process emails containing keywords |
+| `blacklist` | Skip emails containing keywords |
+
+**Matching**: Case-insensitive, matches against sender email and subject line.
 
 ## 附件处理
 ---
@@ -300,5 +321,5 @@ get_email/
 ```
 
 ---
-**版本**: 1.1
+**版本**: 1.2
 **最后更新**: 2026-02-20

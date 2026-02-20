@@ -1,4 +1,4 @@
-# Email to Markdown Converter - Claude Code Integration
+# Email to Markdown Skill - Claude Code Integration
 
 ## Overview
 
@@ -6,7 +6,7 @@ This guide explains how to configure Claude Code (Trae IDE) to use the email-to-
 
 ## Prerequisites
 
-- Claude Code / Trae IDE installed
+- Claude Code
 - Python 3.7+
 - Gmail account with IMAP enabled and App Password generated
 
@@ -25,8 +25,10 @@ config = {
     'imapPort': 993,
     'folder': 'INBOX',
     'searchCriteria': 'ALL',
-    'savePath': './emails',
-    'maxEmails': 8
+    'savePath': './emails', # none/whitelist/blacklist
+    'maxEmails': 8,
+    'filterMode': 'none',
+    'filterList': []
 }
 ```
 
@@ -115,6 +117,34 @@ emails/
 | `UNSEEN` | Unread emails | `searchCriteria: 'UNSEEN'` |
 | `SINCE "01-Feb-2026"` | Emails since date | Date filter |
 | `FROM "sender@example.com"` | From specific sender | Sender filter |
+
+## Filter Mode
+
+Filter emails by whitelist or blacklist:
+
+```python
+config = {
+    'filterMode': 'blacklist',  # none / whitelist / blacklist
+    'filterList': ['JPM', 'Jefferies', 'newsletter']
+}
+```
+
+| Mode | Description |
+|------|-------------|
+| `none` | No filter, process all emails |
+| `whitelist` | Only process emails containing keywords |
+| `blacklist` | Skip emails containing keywords |
+
+**Example:**
+```python
+# Only process emails from academic sources
+'filterMode': 'whitelist',
+'filterList': ['arxiv', 'paper', 'research'],
+
+# Skip marketing emails
+'filterMode': 'blacklist',
+'filterList': ['promotion', 'deal', 'discount'],
+```
 
 ## Troubleshooting
 

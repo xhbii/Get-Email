@@ -12,13 +12,15 @@ import mailparser
 config = {
     'emailProvider': 'gmail',
     'emailAddress': 'test@gmail.com',
-    'emailPassword': 'test',
+    'emailPassword': 'abcd abcd abcd abcd',
     'imapServer': 'imap.gmail.com',
     'imapPort': 993,
     'folder': 'INBOX',
     'searchCriteria': 'ALL',
     'savePath': './emails',
-    'maxEmails': 8
+    'maxEmails': 8,
+    'filterMode': 'whitelist',
+    'filterList': ['JPM']
 }
 
 
@@ -200,6 +202,24 @@ def save_email_as_markdown(email_path, output_dir):
     return output_path
 
 
+def should_process_email(email_sender, email_subject):
+    filter_mode = config.get('filterMode', 'none')
+    filter_list = config.get('filterList', [])
+    
+    if filter_mode == 'none' or not filter_list:
+        return True
+    
+    email_lower = email_sender.lower() if email_sender else ''
+    subject_lower = email_subject.lower() if email_subject else ''
+    
+    for keyword in filter_list:
+        keyword_lower = keyword.lower()
+        if keyword_lower in email_lower or keyword_lower in subject_lower:
+            return filter_mode == 'whitelist'
+    
+    return filter_mode == 'blacklist'
+
+
 def main():
     print("=== Email Fetch and Convert Tool ===")
     
@@ -240,12 +260,24 @@ def main():
                     
                     if result != 'OK' or not msg_data:
                         continue
-                        
+                    
                     raw_email = msg_data[0][1]
                     
                     temp_path = 'temp_email.eml'
                     with open(temp_path, 'wb') as f:
                         f.write(raw_email)
+                    
+                    msg = mailparser.parse_from_file(temp_path)
+                    
+                    email_sender = msg.from_[0][1] if msg and msg.from_ else ''
+                    email_subject = msg.subject or ''
+                    
+                    if not should_process_email(email_sender, email_subject):
+                        filter_mode = config.get('filterMode', 'none')
+                        print(f"Filtered out ({filter_mode}): {email_subject[:50]}...")
+                        if os.path.exists(temp_path):
+                            os.remove(temp_path)
+                        continue
                     
                     print(f"Processing email...")
                     
